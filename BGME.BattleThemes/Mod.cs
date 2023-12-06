@@ -1,79 +1,87 @@
 ﻿using BGME.BattleThemes.Configuration;
+using BGME.BattleThemes.Interfaces;
 using BGME.BattleThemes.Template;
+using BGME.BattleThemes.Themes;
+using BGME.Framework.Interfaces;
+using PersonaModdingMetadata.Shared.Games;
 using Reloaded.Hooks.ReloadedII.Interfaces;
 using Reloaded.Mod.Interfaces;
+using System.Diagnostics;
 
-namespace BGME.BattleThemes
+namespace BGME.BattleThemes;
+
+public class Mod : ModBase, IExports
 {
-    /// <summary>
-    /// Your mod logic goes here.
-    /// </summary>
-    public class Mod : ModBase // <= Do not Remove.
+    private readonly IModLoader modLoader;
+    private readonly IReloadedHooks? hooks;
+    private readonly ILogger logger;
+    private readonly IMod owner;
+    private Config configuration;
+    private readonly IModConfig modConfig;
+
+    private readonly Game game;
+    private readonly BattleThemesService? battleThemesService;
+
+    public Mod(ModContext context)
     {
-        /// <summary>
-        /// Provides access to the mod loader API.
-        /// </summary>
-        private readonly IModLoader _modLoader;
+        this.modLoader = context.ModLoader;
+        this.hooks = context.Hooks;
+        this.logger = context.Logger;
+        this.owner = context.Owner;
+        this.configuration = context.Configuration;
+        this.modConfig = context.ModConfig;
 
-        /// <summary>
-        /// Provides access to the Reloaded.Hooks API.
-        /// </summary>
-        /// <remarks>This is null if you remove dependency on Reloaded.SharedLib.Hooks in your mod.</remarks>
-        private readonly IReloadedHooks? _hooks;
+#if DEBUG
+        Debugger.Launch();
+#endif
 
-        /// <summary>
-        /// Provides access to the Reloaded logger.
-        /// </summary>
-        private readonly ILogger _logger;
+        Log.Logger = this.logger;
+        Log.LogLevel = this.configuration.LogLevel;
 
-        /// <summary>
-        /// Entry point into the mod, instance that created this class.
-        /// </summary>
-        private readonly IMod _owner;
+        this.modLoader.GetController<IBgmeApi>().TryGetTarget(out var bgme);
 
-        /// <summary>
-        /// Provides access to this mod's configuration.
-        /// </summary>
-        private Config _configuration;
-
-        /// <summary>
-        /// The configuration of the currently executing mod.
-        /// </summary>
-        private readonly IModConfig _modConfig;
-
-        public Mod(ModContext context)
+        try
         {
-            _modLoader = context.ModLoader;
-            _hooks = context.Hooks;
-            _logger = context.Logger;
-            _owner = context.Owner;
-            _configuration = context.Configuration;
-            _modConfig = context.ModConfig;
-
-
-            // For more information about this template, please see
-            // https://reloaded-project.github.io/Reloaded-II/ModTemplate/
-
-            // If you want to implement e.g. unload support in your mod,
-            // and some other neat features, override the methods in ModBase.
-
-            // TODO: Implement some mod logic
+            this.game = this.GetGame();
+            var baseDir = modLoader.GetDirectoryForModId(this.modConfig.ModId);
+            var musicRegistry = new MusicRegistry(this.game, this.configuration, baseDir);
+            this.battleThemesService = new(this.modLoader, bgme!, musicRegistry);
+            this.modLoader.AddOrReplaceController<IBattleThemesApi>(this.owner, this.battleThemesService);
         }
-
-        #region Standard Overrides
-        public override void ConfigurationUpdated(Config configuration)
+        catch (Exception ex)
         {
-            // Apply settings from configuration.
-            // ... your code here.
-            _configuration = configuration;
-            _logger.WriteLine($"[{_modConfig.ModId}] Config Updated: Applying");
+            Log.Error(ex, "Failed to start battle themes service.");
         }
-        #endregion
-
-        #region For Exports, Serialization etc.
-#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
-        public Mod() { }
-#pragma warning restore CS8618
-        #endregion
     }
+
+    private Game GetGame()
+    {
+        var appId = this.modLoader.GetAppConfig().AppId.ToLower();
+        return appId switch
+        {
+            "p5r.exe" => Game.P5R_PC,
+            "p4g.exe" => Game.P4G_PC,
+            "p3p.exe" => Game.P3P_PC,
+            _ => Game.P5R_PC,
+        };
+    }
+
+    #region Standard Overrides
+    public override void ConfigurationUpdated(Config configuration)
+    {
+        // Apply settings from configuration.
+        // ... your code here.
+        this.configuration = configuration;
+        logger.WriteLine($"[{modConfig.ModId}] Config Updated: Applying");
+    }
+    #endregion
+
+    #region For Exports, Serialization etc.
+
+    public Type[] GetTypes() => new[] { typeof(IBgmeApi) };
+
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+    public Mod() { }
+#pragma warning restore CS8618
+    #endregion
 }
