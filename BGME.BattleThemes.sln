@@ -7,6 +7,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BGME.BattleThemes", "BGME.B
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BGME.BattleThemes.Interfaces", "BGME.BattleThemes.Interfaces\BGME.BattleThemes.Interfaces.csproj", "{EFEB1517-917C-4BBB-B9D0-F1BD0EB6C43A}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Phos.MusicManager.Library", "submodules\phos-music-manager\Phos.MusicManager.Library\Phos.MusicManager.Library.csproj", "{AAADE549-F67F-4216-B5A5-D2F6057C90E8}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BGME.Framework.Interfaces", "submodules\BGME\BGME.Framework.Interfaces\BGME.Framework.Interfaces.csproj", "{13334FB4-BB46-4BE0-9F69-BD31AF2D9374}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PersonaModdingMetadata.Shared", "submodules\PersonaModdingMetadata\PersonaModdingMetadata.Shared\PersonaModdingMetadata.Shared.csproj", "{A0B4CC4C-32C5-4391-B36A-C24A4FCE94B4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +27,18 @@ Global
 		{EFEB1517-917C-4BBB-B9D0-F1BD0EB6C43A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EFEB1517-917C-4BBB-B9D0-F1BD0EB6C43A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EFEB1517-917C-4BBB-B9D0-F1BD0EB6C43A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AAADE549-F67F-4216-B5A5-D2F6057C90E8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AAADE549-F67F-4216-B5A5-D2F6057C90E8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AAADE549-F67F-4216-B5A5-D2F6057C90E8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AAADE549-F67F-4216-B5A5-D2F6057C90E8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{13334FB4-BB46-4BE0-9F69-BD31AF2D9374}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{13334FB4-BB46-4BE0-9F69-BD31AF2D9374}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{13334FB4-BB46-4BE0-9F69-BD31AF2D9374}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{13334FB4-BB46-4BE0-9F69-BD31AF2D9374}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A0B4CC4C-32C5-4391-B36A-C24A4FCE94B4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A0B4CC4C-32C5-4391-B36A-C24A4FCE94B4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A0B4CC4C-32C5-4391-B36A-C24A4FCE94B4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A0B4CC4C-32C5-4391-B36A-C24A4FCE94B4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
