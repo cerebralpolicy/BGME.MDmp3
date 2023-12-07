@@ -126,6 +126,7 @@ jobs:
       uses: actions/download-artifact@v3
       with:
         name: GitHub Release
+        path: release
     - name: dir
       run: dir -s
     - name: Upload to GitHub Releases (on Tag)
@@ -133,7 +134,6 @@ jobs:
       if: env.IS_RELEASE == 'true'
       with:
         # Path to load note-worthy description of changes in release from
-        body_path: "Changelog/Changelog.md"
+        body_path: "Changelog.md"
         # Newline-delimited list of path globs for asset files to upload
-        files: |
-          ${{ env.PUBLISH_GITHUB_PATH }}/*
+        files: release/*
