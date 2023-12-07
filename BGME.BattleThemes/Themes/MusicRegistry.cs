@@ -73,25 +73,24 @@ internal class MusicRegistry
             return;
         }
 
-        var songFiles = Directory.GetFiles(musicDir, "*", SearchOption.AllDirectories)
+        var songs = Directory.GetFiles(musicDir, "*", SearchOption.AllDirectories)
             .Where(file => this.supportedExts
             .Contains(Path.GetExtension(file), StringComparer.OrdinalIgnoreCase))
+            .Select(file =>
+            {
+                var bgmId = this.GetNextBgmId();
+                var buildFile = Path.Join(modDir, this.GetReplacementPath(bgmId));
+                var song = new ModSong(modId, Path.GetFileNameWithoutExtension(file), bgmId, file, buildFile);
+                this.songs.Add(song);
+                return song;
+            })
             .ToArray();
 
-        Task.WhenAll(songFiles.Select(file => this.RegisterSong(modId, modDir, file))).Wait();
+        Task.WhenAll(songs.Select(this.RegisterSong)).Wait();
     }
 
-    private async Task RegisterSong(string modId, string modDir, string file)
+    private async Task RegisterSong(ModSong song)
     {
-        var bgmId = this.GetNextBgmId();
-        var buildFile = Path.Join(modDir, this.GetReplacementPath(bgmId));
-        var song = new ModSong(modId, Path.GetFileNameWithoutExtension(file), bgmId, file, buildFile);
-
-        lock (this.songs)
-        {
-            this.songs.Add(song);
-        }
-
         await this.BuildSong(song);
         Log.Information($"Registered Song: {song.Name} || Mod: {song.ModId} || BGM ID: {song.BgmId}");
     }
