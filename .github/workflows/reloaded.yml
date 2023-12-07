@@ -84,7 +84,7 @@ jobs:
 
     - name: Copy Build
       run: |
-          Copy-Item -Path "./BGME.BattleThemes/Publish/*" -Destination "./Publish" -Recurse
+          Copy-Item -Path "./BGME.BattleThemes/Publish/*" -Destination "../Publish" -Recurse
 
     - name: Dir
       run: dir -s
