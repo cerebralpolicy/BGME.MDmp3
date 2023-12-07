@@ -86,7 +86,7 @@ jobs:
       run: dir -s
 
     - name: Copy Build
-      run: Copy-Item -Path "./BGME.BattleThemes/Publish" -Destination ${{ env.PUBLISH_PATH }} -Recurse
+      run: Copy-Item -Path "./BGME.BattleThemes/BGME.BattleThemes/Publish" -Destination ${{ env.PUBLISH_PATH }} -Recurse
       
     - name: Upload GitHub Release Artifact
       uses: actions/upload-artifact@v2.2.4
