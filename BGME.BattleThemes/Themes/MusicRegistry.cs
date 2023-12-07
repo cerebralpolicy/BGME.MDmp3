@@ -9,14 +9,23 @@ internal class MusicRegistry
 {
     private readonly Game game;
     private readonly Configuration.Config config;
+    private readonly bool devMode;
     private readonly List<ModSong> songs = new();
     private readonly Dictionary<Game, IEncoder> encoders = new();
     private readonly string[] supportedExts;
 
-    public MusicRegistry(Game game, Configuration.Config config, string baseDir)
+    public MusicRegistry(
+        Game game,
+        Configuration.Config config,
+        string baseDir)
     {
         this.game = game;
         this.config = config;
+        this.devMode = File.Exists(Path.Join(baseDir, "battle-themes", "dev.json"));
+        if (this.devMode)
+        {
+            Log.Information("Developer Mode Enabled. Songs files will always be built.");
+        }
 
         var cachedDir = new DirectoryInfo(Path.Join(game.GameFolder(baseDir), "cached"));
         cachedDir.Create();
@@ -89,20 +98,21 @@ internal class MusicRegistry
 
     private async Task BuildSong(ModSong song)
     {
-        Log.Debug($"Building Song: {song.FilePath}");
+        Log.Debug($"Building song: {song.FilePath}");
 
         var outputFile = new FileInfo(song.BuildFilePath);
-        if (outputFile.Exists)
+        if (outputFile.Exists && !this.devMode)
         {
-            Log.Debug("File already exists. Skipping...");
-            return;
+            Log.Debug($"Song already built.");
+        }
+        else
+        {
+            outputFile.Directory!.Create();
+            var encoder = this.encoders[this.game];
+            await encoder.Encode(song.FilePath, outputFile.FullName);
         }
 
-        outputFile.Directory!.Create();
-        var encoder = this.encoders[this.game];
-        await encoder.Encode(song.FilePath, outputFile.FullName);
-
-        Log.Debug($"Built Song: {song.BuildFilePath}");
+        Log.Debug($"Built song: {song.BuildFilePath}");
     }
 
     private string GetReplacementPath(int bgmId) => this.game switch
