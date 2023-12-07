@@ -83,12 +83,8 @@ jobs:
       run: ./BGME.BattleThemes/Publish.ps1
 
     - name: Copy Build
-      run: |
-          Copy-Item -Force -Path "./BGME.BattleThemes/Publish/*" -Destination "./Publish" -Recurse
+      run: Copy-Item -Force -Path "./BGME.BattleThemes/Publish/*" -Destination "./Publish" -Recurse
 
-    - name: Dir
-      run: dir -s
-      
     - name: Upload GitHub Release Artifact
       uses: actions/upload-artifact@v2.2.4
       with:
@@ -130,12 +126,14 @@ jobs:
       uses: actions/download-artifact@v3
       with:
         name: GitHub Release
+    - name: dir
+      run: dir -s
     - name: Upload to GitHub Releases (on Tag)
       uses: softprops/action-gh-release@v0.1.14
       if: env.IS_RELEASE == 'true'
       with:
         # Path to load note-worthy description of changes in release from
-        body_path: ${{ env.PUBLISH_CHANGELOG_PATH }}
+        body_path: "Changelog/Changelog.md"
         # Newline-delimited list of path globs for asset files to upload
         files: |
           ${{ env.PUBLISH_GITHUB_PATH }}/*
