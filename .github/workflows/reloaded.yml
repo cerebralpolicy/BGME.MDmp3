@@ -65,7 +65,7 @@ jobs:
       run: ./BGME.BattleThemes/Publish.ps1
 
     - name: Dir list
-      run: dir
+      run: dir -s -Directory
       
     - name: Upload GitHub Release Artifact
       uses: actions/upload-artifact@v2.2.4
