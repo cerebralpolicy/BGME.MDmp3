@@ -164,7 +164,7 @@ param (
     ## => User Config <= ## 
     $ProjectPath = "BGME.BattleThemes.csproj",
     $PackageName = "BGME.BattleThemes",
-    $PublishOutputDir = "../../Publish/ToUpload",
+    $PublishOutputDir = "../../../Publish/ToUpload",
 
     ## => User: Delta Config
     # Pick one and configure settings below.
