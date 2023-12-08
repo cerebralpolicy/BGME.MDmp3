@@ -78,7 +78,7 @@ public class Mod : ModBase, IExports
 
     #region For Exports, Serialization etc.
 
-    public Type[] GetTypes() => new[] { typeof(IBgmeApi) };
+    public Type[] GetTypes() => new[] { typeof(IBattleThemesApi) };
 
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
     public Mod() { }
