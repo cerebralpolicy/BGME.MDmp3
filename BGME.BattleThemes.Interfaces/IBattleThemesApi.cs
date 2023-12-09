@@ -3,28 +3,14 @@
 public interface IBattleThemesApi
 {
     /// <summary>
-    /// Add a battle theme music script file.
+    /// Add a path to load themes from. Can be a <c>file</c> or <c>folder</c>.
     /// </summary>
-    /// <param name="modId">Mod ID whose songs to use for theme.</param>
-    /// <param name="filePath">Theme file path.</param>
-    void AddFile(string modId, string filePath);
+    /// <param name="path">Path to theme file or folder containing themes.</param>
+    void AddPath(string modId, string path);
 
     /// <summary>
-    /// Add a folder containing battle theme music script(s).
+    /// Remove a previously added theme path.
     /// </summary>
-    /// <param name="modId">Mod ID whose songs to use for theme(s).</param>
-    /// <param name="folderPath">Folder path.</param>
-    void AddFolder(string modId, string folderPath);
-
-    /// <summary>
-    /// Remove a previously added theme music script file.
-    /// </summary>
-    /// <param name="filePath">Theme file path.</param>
-    void RemoveFile(string filePath);
-
-    /// <summary>
-    /// Remove a previously added theme folder.
-    /// </summary>
-    /// <param name="folderPath">Theme folder path.</param>
-    void RemoveFolder(string folderPath);
+    /// <param name="path">Theme path.</param>
+    void RemovePath(string path);
 }
