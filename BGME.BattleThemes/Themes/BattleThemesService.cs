@@ -1,7 +1,9 @@
 ﻿using BGME.BattleThemes.Interfaces;
 using BGME.Framework.Interfaces;
+using DynamicData;
 using Reloaded.Mod.Interfaces;
 using Reloaded.Mod.Interfaces.Internal;
+using System.Reactive.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -13,12 +15,11 @@ internal class BattleThemesService : IBattleThemesApi
     private readonly IBgmeApi bgme;
     private readonly MusicRegistry musicRegistry;
 
-    private readonly HashSet<ThemePath> themePaths = new();
+    private readonly SourceCache<ThemePath, string> themePaths = new(x => x.Path);
+
     private readonly List<string> themes = new();
     private readonly StringBuilder musicScriptBuilder = new();
     private Func<string>? themeScriptCallback;
-
-    private bool hasLoaded = false;
 
     public BattleThemesService(
         IModLoader modLoader,
@@ -29,27 +30,27 @@ internal class BattleThemesService : IBattleThemesApi
         this.bgme = bgme;
         this.musicRegistry = musicRegistry;
 
+        this.themePaths.Connect()
+            .Throttle(TimeSpan.FromMilliseconds(250))
+            .Subscribe(x =>
+            {
+                this.ApplyThemeScript();
+            });
+
         this.modLoader.ModLoading += this.OnModLoading;
-        this.modLoader.OnModLoaderInitialized += this.ApplyThemeScript;
     }
 
     public void AddPath(string modId, string path)
     {
-        this.themePaths.Add(new(modId, path));
-        if (this.hasLoaded)
-        {
-            this.ApplyThemeScript();
-        }
-
+        this.themePaths.AddOrUpdate(new ThemePath(modId, path));
         Log.Debug($"Added theme path.\nPath: {path}");
     }
 
     public void RemovePath(string path)
     {
-        if (this.themePaths.FirstOrDefault(x => x.Path == path) is ThemePath themePath)
+        if (this.themePaths.Items.FirstOrDefault(x => x.Path == path) is ThemePath themePath)
         {
             this.themePaths.Remove(themePath);
-            this.ApplyThemeScript();
             Log.Debug($"Removed theme path.\nPath: {path}");
         }
         else
@@ -82,7 +83,7 @@ internal class BattleThemesService : IBattleThemesApi
             this.themes.Clear();
         }
 
-        foreach (var theme in this.themePaths)
+        foreach (var theme in this.themePaths.Items)
         {
             if (theme.IsFile)
             {
@@ -109,8 +110,6 @@ internal class BattleThemesService : IBattleThemesApi
         this.themeScriptCallback = () => musicScript;
         this.bgme.AddMusicScript(this.themeScriptCallback);
         Log.Debug($"Battle Theme Script:\n{musicScript}");
-
-        this.hasLoaded = true;
     }
 
     private void ProcessFile(string modId, string filePath)
