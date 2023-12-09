@@ -36,8 +36,8 @@ namespace BGME.BattleThemes.Configuration
 
         [DisplayName("Persona 4 Golden")]
         [Category("Base BGM ID")]
-        [DefaultValue(700)]
-        public int BaseBgmId_P4G { get; set; } = 700;
+        [DefaultValue(693)]
+        public int BaseBgmId_P4G { get; set; } = 693;
 
         [DisplayName("Persona 3 Portable")]
         [Category("Base BGM ID")]
