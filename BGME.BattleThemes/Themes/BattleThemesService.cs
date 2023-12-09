@@ -13,7 +13,7 @@ internal class BattleThemesService : IBattleThemesApi
     private readonly IBgmeApi bgme;
     private readonly MusicRegistry musicRegistry;
 
-    private readonly List<ThemePath> themePaths = new();
+    private readonly HashSet<ThemePath> themePaths = new();
     private readonly List<string> themes = new();
     private readonly StringBuilder musicScriptBuilder = new();
     private Func<string>? themeScriptCallback;
@@ -54,7 +54,7 @@ internal class BattleThemesService : IBattleThemesApi
         }
         else
         {
-            Log.Warning($"Could not find theme path to remove.\nPath: {path}");
+            Log.Debug($"Could not find theme path to remove.\nPath: {path}");
         }
     }
 
@@ -79,6 +79,7 @@ internal class BattleThemesService : IBattleThemesApi
         {
             this.bgme.RemoveMusicScript(this.themeScriptCallback);
             this.musicScriptBuilder.Clear();
+            this.themes.Clear();
         }
 
         foreach (var theme in this.themePaths)
