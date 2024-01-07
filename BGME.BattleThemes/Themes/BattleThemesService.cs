@@ -1,11 +1,11 @@
 ﻿using BGME.BattleThemes.Interfaces;
 using BGME.Framework.Interfaces;
-using DynamicData;
 using Reloaded.Mod.Interfaces;
 using Reloaded.Mod.Interfaces.Internal;
-using System.Reactive.Linq;
+using System.Collections.ObjectModel;
 using System.Text;
 using System.Text.RegularExpressions;
+using Timer = System.Timers.Timer;
 
 namespace BGME.BattleThemes.Themes;
 
@@ -15,11 +15,11 @@ internal class BattleThemesService : IBattleThemesApi
     private readonly IBgmeApi bgme;
     private readonly MusicRegistry musicRegistry;
 
-    private readonly SourceCache<ThemePath, string> themePaths = new(x => x.Path);
-
+    private readonly ObservableCollection<ThemePath> themePaths = new();
     private readonly List<string> themes = new();
     private readonly StringBuilder musicScriptBuilder = new();
     private Func<string>? themeScriptCallback;
+    private readonly Timer themesRefreshTimer;
 
     public BattleThemesService(
         IModLoader modLoader,
@@ -30,32 +30,41 @@ internal class BattleThemesService : IBattleThemesApi
         this.bgme = bgme;
         this.musicRegistry = musicRegistry;
 
-        this.themePaths.Connect()
-            .Throttle(TimeSpan.FromMilliseconds(250))
-            .Subscribe(x =>
-            {
-                this.ApplyThemeScript();
-            });
+        this.themesRefreshTimer = new(TimeSpan.FromMilliseconds(250))
+        {
+            AutoReset = false,
+        };
+
+        this.themesRefreshTimer.Elapsed += (sender, args) => this.ApplyThemeScript();
+        this.themePaths.CollectionChanged += (sender, args) =>
+        {
+            this.themesRefreshTimer.Stop();
+            this.themesRefreshTimer.Start();
+        };
 
         this.modLoader.ModLoading += this.OnModLoading;
     }
 
     public void AddPath(string modId, string path)
     {
-        this.themePaths.AddOrUpdate(new ThemePath(modId, path));
-        Log.Debug($"Added theme path.\nPath: {path}");
+        var themePath = new ThemePath(modId, path);
+        if (!this.themePaths.Contains(themePath))
+        {
+            this.themePaths.Add(new ThemePath(modId, path));
+            Log.Debug($"Added theme path.\nPath: {path}");
+        }
     }
 
     public void RemovePath(string path)
     {
-        if (this.themePaths.Items.FirstOrDefault(x => x.Path == path) is ThemePath themePath)
+        if (this.themePaths.FirstOrDefault(x => x.Path == path) is ThemePath themePath)
         {
             this.themePaths.Remove(themePath);
             Log.Debug($"Removed theme path.\nPath: {path}");
         }
         else
         {
-            Log.Debug($"Could not find theme path to remove.\nPath: {path}");
+            Log.Verbose($"Could not find theme path to remove.\nPath: {path}");
         }
     }
 
@@ -83,7 +92,7 @@ internal class BattleThemesService : IBattleThemesApi
             this.themes.Clear();
         }
 
-        foreach (var theme in this.themePaths.Items)
+        foreach (var theme in this.themePaths)
         {
             if (theme.IsFile)
             {
@@ -109,7 +118,7 @@ internal class BattleThemesService : IBattleThemesApi
         var musicScript = this.musicScriptBuilder.ToString();
         this.themeScriptCallback = () => musicScript;
         this.bgme.AddMusicScript(this.themeScriptCallback);
-        Log.Debug($"Battle Theme Script:\n{musicScript}");
+        Log.Debug($"Battle Themes Script:\n{musicScript}");
     }
 
     private void ProcessFile(string modId, string filePath)
