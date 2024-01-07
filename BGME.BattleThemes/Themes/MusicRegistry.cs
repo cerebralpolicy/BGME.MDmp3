@@ -2,6 +2,7 @@
 using PersonaModdingMetadata.Shared.Games;
 using Phos.MusicManager.Library.Audio.Encoders;
 using Phos.MusicManager.Library.Audio.Encoders.VgAudio;
+using System.Text.Json;
 
 namespace BGME.BattleThemes.Themes;
 
@@ -9,32 +10,34 @@ internal class MusicRegistry
 {
     private readonly Game game;
     private readonly Configuration.Config config;
-    private readonly bool devMode;
-    private readonly List<ModSong> songs = new();
+    private readonly HashSet<ModSong> previousMusic;
+    private readonly HashSet<ModSong> currentMusic = new();
     private readonly Dictionary<Game, IEncoder> encoders = new();
     private readonly string[] supportedExts;
+    private readonly string modDir;
+    private readonly string gameFolder;
 
     public MusicRegistry(
         Game game,
         Configuration.Config config,
-        string baseDir)
+        string modDir)
     {
         this.game = game;
         this.config = config;
-        this.devMode = File.Exists(Path.Join(baseDir, "battle-themes", "dev.json"));
-        if (this.devMode)
-        {
-            Log.Information("Developer Mode Enabled. Songs files will always be built.");
-        }
+        this.modDir = modDir;
 
-        var cachedDir = new DirectoryInfo(Path.Join(game.GameFolder(baseDir), "cached"));
+        this.gameFolder = game.GameFolder(modDir);
+        this.previousMusic = this.GetPreviousMusic();
+
+        var cachedDir = new DirectoryInfo(Path.Join(gameFolder, "cached"));
         cachedDir.Create();
+
         this.encoders[Game.P4G_PC] = new CachedEncoder(new VgAudioEncoder(new() { OutContainerFormat = "hca" }), cachedDir.FullName);
         this.encoders[Game.P3P_PC] = new CachedEncoder(new VgAudioEncoder(new() { OutContainerFormat = "adx" }), cachedDir.FullName);
         this.encoders[Game.P5R_PC] = new CachedEncoder(new VgAudioEncoder(new() { OutContainerFormat = "adx", KeyCode = 9923540143823782 }), cachedDir.FullName);
         this.supportedExts = this.encoders.First().Value.InputTypes;
 
-        this.RegisterMusic(Path.GetDirectoryName(baseDir)!);
+        this.RegisterMusic();
     }
 
     /// <summary>
@@ -42,10 +45,11 @@ internal class MusicRegistry
     /// </summary>
     /// <param name="modId">Mod ID to get songs for.</param>
     /// <returns>Array of songs.</returns>
-    public ModSong[] GetModSongs(string modId) => this.songs.Where(x => x.ModId == modId).ToArray();
+    public ModSong[] GetModSongs(string modId) => this.currentMusic.Where(x => x.ModId == modId).ToArray();
 
-    private void RegisterMusic(string modsDir)
+    private void RegisterMusic()
     {
+        var modsDir = Path.GetDirectoryName(this.modDir)!;
         foreach (var modDir in Directory.EnumerateDirectories(modsDir))
         {
             var modConfigFile = Path.Join(modDir, "ModConfig.json");
@@ -57,23 +61,19 @@ internal class MusicRegistry
             var modConfig = ReloadedConfigParser.Parse(modConfigFile);
             this.RegisterModMusic(modConfig.ModId, modDir);
         }
+
+        this.SaveCurrentMusic();
     }
 
     private void RegisterModMusic(string modId, string modDir)
     {
-        var battleThemesDir = Path.Join(modDir, "battle-themes");
-        if (!Directory.Exists(battleThemesDir))
-        {
-            return;
-        }
-
-        var musicDir = Path.Join(battleThemesDir, "music");
+        var musicDir = Path.Join(modDir, "battle-themes", "music");
         if (!Directory.Exists(musicDir))
         {
             return;
         }
 
-        var songs = Directory.GetFiles(musicDir, "*", SearchOption.AllDirectories)
+        var modSongs = Directory.GetFiles(musicDir, "*", SearchOption.AllDirectories)
             .Where(file => this.supportedExts
             .Contains(Path.GetExtension(file), StringComparer.OrdinalIgnoreCase))
             .Select(file =>
@@ -81,37 +81,64 @@ internal class MusicRegistry
                 var bgmId = this.GetNextBgmId();
                 var buildFile = Path.Join(modDir, this.GetReplacementPath(bgmId));
                 var song = new ModSong(modId, Path.GetFileNameWithoutExtension(file), bgmId, file, buildFile);
-                this.songs.Add(song);
+                this.currentMusic.Add(song);
                 return song;
             })
             .ToArray();
 
-        Task.WhenAll(songs.Select(this.RegisterSong)).Wait();
+        Task.WhenAll(modSongs.Select(this.RegisterSong)).Wait();
+
+        foreach (var song in this.previousMusic)
+        {
+            if (File.Exists(song.BuildFilePath))
+            {
+                File.Delete(song.BuildFilePath);
+                Log.Debug($"Removed unused song file: {song.Name} || {song.BuildFilePath}");
+            }
+        }
     }
 
     private async Task RegisterSong(ModSong song)
     {
-        await this.BuildSong(song);
-        Log.Information($"Registered Song: {song.Name} || Mod: {song.ModId} || BGM ID: {song.BgmId}");
-    }
+        // Don't rebuild songs that haven't changed.
+        if (this.previousMusic.Contains(song))
+        {
+            Log.Debug($"Song already built: {song.Name}");
+            this.previousMusic.Remove(song);
+            return;
+        }
 
-    private async Task BuildSong(ModSong song)
-    {
         Log.Debug($"Building song: {song.FilePath}");
 
         var outputFile = new FileInfo(song.BuildFilePath);
-        if (outputFile.Exists && !this.devMode)
-        {
-            Log.Debug($"Song already built.");
-        }
-        else
-        {
-            outputFile.Directory!.Create();
-            var encoder = this.encoders[this.game];
-            await encoder.Encode(song.FilePath, outputFile.FullName);
-        }
+        outputFile.Directory!.Create();
+
+        var encoder = this.encoders[this.game];
+        await encoder.Encode(song.FilePath, outputFile.FullName);
 
         Log.Debug($"Built song: {song.BuildFilePath}");
+        Log.Information($"Registered song: {song.Name} || Mod: {song.ModId} || BGM ID: {song.BgmId}");
+
+        // Remove any previous song that had the same build file
+        // since the file path is still in use.
+        this.previousMusic.RemoveWhere(x => x.BuildFilePath == song.BuildFilePath);
+    }
+
+    private void SaveCurrentMusic()
+    {
+        var musicFileList = Path.Join(this.gameFolder, "music.json");
+        File.WriteAllText(musicFileList, JsonSerializer.Serialize(this.currentMusic, new JsonSerializerOptions { WriteIndented = true }));
+    }
+
+    private HashSet<ModSong> GetPreviousMusic()
+    {
+        var musicFileList = Path.Join(this.gameFolder, "music.json");
+        if (File.Exists(musicFileList))
+        {
+            return JsonSerializer.Deserialize<HashSet<ModSong>>(File.ReadAllText(musicFileList)) ?? new();
+        }
+
+        return new();
     }
 
     private string GetReplacementPath(int bgmId) => this.game switch
@@ -122,7 +149,7 @@ internal class MusicRegistry
         _ => throw new Exception("Unknown game."),
     };
 
-    private int GetNextBgmId() => this.GetBaseBgmId() + this.songs.Count;
+    private int GetNextBgmId() => this.GetBaseBgmId() + this.currentMusic.Count;
 
     private int GetBaseBgmId() => this.game switch
     {
