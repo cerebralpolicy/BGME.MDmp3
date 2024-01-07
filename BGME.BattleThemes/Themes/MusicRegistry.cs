@@ -16,15 +16,18 @@ internal class MusicRegistry
     private readonly string[] supportedExts;
     private readonly string modDir;
     private readonly string gameFolder;
+    private readonly string[] enabledMods;
 
     public MusicRegistry(
         Game game,
         Configuration.Config config,
-        string modDir)
+        string modDir,
+        string[] enabledMods)
     {
         this.game = game;
         this.config = config;
         this.modDir = modDir;
+        this.enabledMods = enabledMods;
 
         this.gameFolder = game.GameFolder(modDir);
         this.previousMusic = this.GetPreviousMusic();
@@ -59,7 +62,28 @@ internal class MusicRegistry
             }
 
             var modConfig = ReloadedConfigParser.Parse(modConfigFile);
-            this.RegisterModMusic(modConfig.ModId, modDir);
+            if (this.enabledMods.Contains(modConfig.ModId))
+            {
+                this.RegisterModMusic(modConfig.ModId, modDir);
+            }
+        }
+
+        var activeBuildFiles = this.currentMusic.Select(x => x.BuildFilePath).ToArray();
+
+        // Remove any files from songs that are not in current music
+        // or whose build file path is no longer used.
+        var unusedSongs = this.previousMusic
+            .Except(this.currentMusic)
+            .Where(x => activeBuildFiles.Contains(x.BuildFilePath) == false)
+            .ToArray();
+
+        foreach (var song in unusedSongs)
+        {
+            if (File.Exists(song.BuildFilePath))
+            {
+                File.Delete(song.BuildFilePath);
+                Log.Debug($"Removed unused song file: {song.Name} || {song.BuildFilePath}");
+            }
         }
 
         this.SaveCurrentMusic();
@@ -87,15 +111,6 @@ internal class MusicRegistry
             .ToArray();
 
         Task.WhenAll(modSongs.Select(this.RegisterSong)).Wait();
-
-        foreach (var song in this.previousMusic)
-        {
-            if (File.Exists(song.BuildFilePath))
-            {
-                File.Delete(song.BuildFilePath);
-                Log.Debug($"Removed unused song file: {song.Name} || {song.BuildFilePath}");
-            }
-        }
     }
 
     private async Task RegisterSong(ModSong song)
@@ -104,7 +119,6 @@ internal class MusicRegistry
         if (this.previousMusic.Contains(song))
         {
             Log.Debug($"Song already built: {song.Name}");
-            this.previousMusic.Remove(song);
             return;
         }
 
@@ -118,10 +132,6 @@ internal class MusicRegistry
 
         Log.Debug($"Built song: {song.BuildFilePath}");
         Log.Information($"Registered song: {song.Name} || Mod: {song.ModId} || BGM ID: {song.BgmId}");
-
-        // Remove any previous song that had the same build file
-        // since the file path is still in use.
-        this.previousMusic.RemoveWhere(x => x.BuildFilePath == song.BuildFilePath);
     }
 
     private void SaveCurrentMusic()
