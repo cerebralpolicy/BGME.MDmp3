@@ -44,7 +44,7 @@ public class Mod : ModBase, IExports
         {
             this.game = this.GetGame();
             var baseDir = modLoader.GetDirectoryForModId(this.modConfig.ModId);
-            var musicRegistry = new MusicRegistry(this.game, this.configuration, baseDir);
+            var musicRegistry = new MusicRegistry(this.game, this.configuration, baseDir, this.modLoader.GetAppConfig().EnabledMods);
             this.battleThemesService = new(this.modLoader, bgme!, musicRegistry);
             this.modLoader.AddOrReplaceController<IBattleThemesApi>(this.owner, this.battleThemesService);
         }
