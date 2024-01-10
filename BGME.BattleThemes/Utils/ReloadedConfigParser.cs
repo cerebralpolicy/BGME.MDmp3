@@ -5,7 +5,17 @@ namespace BGME.BattleThemes.Utils;
 internal static class ReloadedConfigParser
 {
     public static ReloadedConfig Parse(string file)
-        => JsonSerializer.Deserialize<ReloadedConfig>(File.ReadAllText(file))!;
+    {
+        try
+        {
+            return JsonSerializer.Deserialize<ReloadedConfig>(File.ReadAllText(file)) ?? throw new Exception();
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "Failed to parse mod config.");
+            return new() { ModId = "BGME.BattleThemes" };
+        }
+    }
 }
 
 internal class ReloadedConfig

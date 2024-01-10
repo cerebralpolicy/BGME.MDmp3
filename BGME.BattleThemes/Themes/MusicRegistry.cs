@@ -145,7 +145,14 @@ internal class MusicRegistry
         var musicFileList = Path.Join(this.gameFolder, "music.json");
         if (File.Exists(musicFileList))
         {
-            return JsonSerializer.Deserialize<HashSet<ModSong>>(File.ReadAllText(musicFileList)) ?? new();
+            try
+            {
+                return JsonSerializer.Deserialize<HashSet<ModSong>>(File.ReadAllText(musicFileList)) ?? new();
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, "Failed to parse previous music.");
+            }
         }
 
         return new();
