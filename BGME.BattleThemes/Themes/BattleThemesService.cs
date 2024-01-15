@@ -18,7 +18,7 @@ internal class BattleThemesService : IBattleThemesApi
     private readonly ObservableCollection<ThemePath> themePaths = new();
     private readonly List<string> themes = new();
     private readonly StringBuilder musicScriptBuilder = new();
-    private Func<string>? themeScriptCallback;
+    private Func<string> themeScriptCallback = () => string.Empty;
     private readonly Timer themesRefreshTimer;
 
     public BattleThemesService(
@@ -34,6 +34,10 @@ internal class BattleThemesService : IBattleThemesApi
         {
             AutoReset = false,
         };
+
+        // Add temp callback to retain mod priority
+        // in music scripts.
+        this.bgme.AddMusicScript(this.themeScriptCallback);
 
         this.themesRefreshTimer.Elapsed += (sender, args) => this.ApplyThemeScript();
         this.themePaths.CollectionChanged += (sender, args) =>
@@ -85,12 +89,8 @@ internal class BattleThemesService : IBattleThemesApi
 
     private void ApplyThemeScript()
     {
-        if (this.themeScriptCallback != null)
-        {
-            this.bgme.RemoveMusicScript(this.themeScriptCallback);
-            this.musicScriptBuilder.Clear();
-            this.themes.Clear();
-        }
+        this.musicScriptBuilder.Clear();
+        this.themes.Clear();
 
         foreach (var theme in this.themePaths)
         {
@@ -116,8 +116,12 @@ internal class BattleThemesService : IBattleThemesApi
         musicScriptBuilder.AppendLine("end");
 
         var musicScript = this.musicScriptBuilder.ToString();
-        this.themeScriptCallback = () => musicScript;
-        this.bgme.AddMusicScript(this.themeScriptCallback);
+        string newCallback() => musicScript;
+
+        // Replace current callback with new one.
+        this.bgme.AddMusicScript(newCallback, this.themeScriptCallback);
+        this.themeScriptCallback = newCallback;
+
         Log.Debug($"Battle Themes Script:\n{musicScript}");
     }
 
