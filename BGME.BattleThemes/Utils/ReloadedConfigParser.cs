@@ -9,7 +9,7 @@ internal static class ReloadedConfigParser
     {
         try
         {
-            return JsonSerializer.Deserialize<ReloadedConfig>(File.ReadAllText(file, Encoding.Unicode)) ?? throw new Exception();
+            return JsonSerializer.Deserialize<ReloadedConfig>(File.ReadAllText(file, Encoding.ASCII)) ?? throw new Exception();
         }
         catch (Exception ex)
         {
