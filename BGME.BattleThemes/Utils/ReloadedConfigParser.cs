@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using System.Text;
+using System.Text.Json;
 
 namespace BGME.BattleThemes.Utils;
 
@@ -8,11 +9,11 @@ internal static class ReloadedConfigParser
     {
         try
         {
-            return JsonSerializer.Deserialize<ReloadedConfig>(File.ReadAllText(file)) ?? throw new Exception();
+            return JsonSerializer.Deserialize<ReloadedConfig>(File.ReadAllText(file, Encoding.Unicode)) ?? throw new Exception();
         }
         catch (Exception ex)
         {
-            Log.Error(ex, "Failed to parse mod config.");
+            Log.Error(ex, $"Failed to parse mod config.\nFile: {file}");
             return new() { ModId = "BGME.BattleThemes" };
         }
     }
