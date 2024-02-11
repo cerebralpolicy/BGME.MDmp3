@@ -56,14 +56,17 @@ public class Mod : ModBase, IExports
 
     private Game GetGame()
     {
-        var appId = this.modLoader.GetAppConfig().AppId.ToLower();
-        return appId switch
-        {
-            "p5r.exe" => Game.P5R_PC,
-            "p4g.exe" => Game.P4G_PC,
-            "p3p.exe" => Game.P3P_PC,
-            _ => Game.P5R_PC,
-        };
+        var appId = this.modLoader.GetAppConfig().AppId;
+        if (appId.Contains("p3r"))
+            return Game.P3R_PC;
+        else if (appId.Contains("p5r"))
+            return Game.P5R_PC;
+        else if (appId.Contains("p4g"))
+            return Game.P4G_PC;
+        else if (appId.Contains("p3p"))
+            return Game.P3P_PC;
+
+        throw new Exception($"Unknown game: {appId}");
     }
 
     #region Standard Overrides

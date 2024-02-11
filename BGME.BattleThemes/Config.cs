@@ -43,6 +43,11 @@ namespace BGME.BattleThemes.Configuration
         [Category("Base BGM ID")]
         [DefaultValue(4000)]
         public int BaseBgmId_P3P { get; set; } = 4000;
+
+        [DisplayName("Persona 3 Reload")]
+        [Category("Base BGM ID")]
+        [DefaultValue(4000)]
+        public int BaseBgmId_P3R { get; set; } = 4000;
     }
 
     /// <summary>

@@ -38,6 +38,7 @@ internal class MusicRegistry
         this.encoders[Game.P4G_PC] = new CachedEncoder(new VgAudioEncoder(new() { OutContainerFormat = "hca" }), cachedDir.FullName);
         this.encoders[Game.P3P_PC] = new CachedEncoder(new VgAudioEncoder(new() { OutContainerFormat = "adx" }), cachedDir.FullName);
         this.encoders[Game.P5R_PC] = new CachedEncoder(new VgAudioEncoder(new() { OutContainerFormat = "adx", KeyCode = 9923540143823782 }), cachedDir.FullName);
+        this.encoders[Game.P3R_PC] = new CachedEncoder(new VgAudioEncoder(new() { OutContainerFormat = "hca", KeyCode = 11918920 }), cachedDir.FullName);
         this.supportedExts = this.encoders.First().Value.InputTypes;
 
         this.RegisterMusic();
@@ -163,6 +164,7 @@ internal class MusicRegistry
         Game.P3P_PC => Path.Join("P5REssentials/CPK/Battle Themes/data/sound/bgm", $"{bgmId}.adx"),
         Game.P4G_PC => Path.Join("FEmulator/AWB/snd00_bgm.awb", $"{bgmId}.hca"),
         Game.P5R_PC => Path.Join("FEmulator/AWB/BGM_42.AWB", $"{bgmId - 10000}.adx"),
+        Game.P3R_PC => Path.Join("BGME/P3R", $"{bgmId}.hca"),
         _ => throw new Exception("Unknown game."),
     };
 
@@ -173,6 +175,7 @@ internal class MusicRegistry
         Game.P3P_PC => this.config.BaseBgmId_P3P,
         Game.P4G_PC => this.config.BaseBgmId_P4G,
         Game.P5R_PC => this.config.BaseBgmId_P5R,
+        Game.P3R_PC => this.config.BaseBgmId_P3R,
         _ => throw new Exception("Unknown game."),
     };
 }

@@ -119,14 +119,16 @@
   },
   "IsUniversalMod": false,
   "ModDependencies": [
-    "BGME.Framework",
+    "BGME.Framework.P3R",
     "reloaded.sharedlib.hooks"
   ],
-  "OptionalDependencies": [],
+  "OptionalDependencies": [
+  ],
   "SupportedAppId": [
     "p3p.exe",
     "p4g.exe",
-    "p5r.exe"
+    "p5r.exe",
+    "p3r.exe"
   ],
   "ProjectUrl": ""
 }
