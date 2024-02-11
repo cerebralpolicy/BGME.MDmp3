@@ -111,7 +111,11 @@ internal class MusicRegistry
             })
             .ToArray();
 
-        Task.WhenAll(modSongs.Select(this.RegisterSong)).Wait();
+        //Task.WhenAll(modSongs.Select(this.RegisterSong)).Wait();
+        foreach (var song in modSongs)
+        {
+            this.RegisterSong(song).Wait();
+        }
     }
 
     private async Task RegisterSong(ModSong song)
