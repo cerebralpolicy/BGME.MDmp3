@@ -1,8 +1,8 @@
 {
   "ModId": "BGME.BattleThemes",
   "ModName": "BGME Battle Themes",
-  "ModAuthor": "T-Pose Ratkechi",
-  "ModVersion": "1.0.7",
+  "ModAuthor": "zutomayofan50",
+  "ModVersion": "1.1.0",
   "ModDescription": "Allows multiple mods to add battle themes which will randomly play. Battle themes automatically support P5R, P4G, and P3P.",
   "ModDll": "BGME.BattleThemes.dll",
   "ModIcon": "Preview.png",
@@ -119,7 +119,7 @@
   },
   "IsUniversalMod": false,
   "ModDependencies": [
-    "BGME.Framework.P3R",
+    "BGME.Framework.API",
     "reloaded.sharedlib.hooks"
   ],
   "OptionalDependencies": [
