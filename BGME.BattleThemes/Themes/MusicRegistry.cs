@@ -8,6 +8,8 @@ namespace BGME.BattleThemes.Themes;
 
 internal class MusicRegistry
 {
+    private const int CURRENT_VERSION = 1;
+
     private readonly Game game;
     private readonly Configuration.Config config;
     private readonly HashSet<ModSong> previousMusic;
@@ -30,8 +32,6 @@ internal class MusicRegistry
         this.enabledMods = enabledMods;
 
         this.gameFolder = game.GameFolder(modDir);
-        this.previousMusic = this.GetPreviousMusic();
-
         var cachedDir = new DirectoryInfo(Path.Join(gameFolder, "cached"));
         cachedDir.Create();
 
@@ -41,6 +41,13 @@ internal class MusicRegistry
         this.encoders[Game.P3R_PC] = new CachedEncoder(new VgAudioEncoder(new() { OutContainerFormat = "hca", KeyCode = 11918920 }), cachedDir.FullName);
         this.supportedExts = this.encoders.First().Value.InputTypes;
 
+        // Rebuild all music on new versions.
+        if (this.IsNewVersion())
+        {
+            this.ResetMusic();
+        }
+
+        this.previousMusic = this.GetPreviousMusic();
         this.RegisterMusic();
     }
 
@@ -143,6 +150,9 @@ internal class MusicRegistry
     {
         var musicFileList = Path.Join(this.gameFolder, "music.json");
         File.WriteAllText(musicFileList, JsonSerializer.Serialize(this.currentMusic, new JsonSerializerOptions { WriteIndented = true }));
+
+        var versionFile = Path.Join(this.gameFolder, "version.txt");
+        File.WriteAllText(versionFile, CURRENT_VERSION.ToString());
     }
 
     private HashSet<ModSong> GetPreviousMusic()
@@ -161,6 +171,51 @@ internal class MusicRegistry
         }
 
         return new();
+    }
+
+    private void ResetMusic()
+    {
+        Log.Information("New version, rebuilding all music.");
+
+        var encoder = this.encoders[this.game];
+        var cachedFolder = Path.Join(this.gameFolder, "cached");
+        if (Directory.Exists(cachedFolder))
+        {
+            foreach (var file in Directory.EnumerateFiles(cachedFolder, $"*{encoder.EncodedExt}"))
+            {
+                File.Delete(file);
+                Log.Debug($"Cleared cached file: {file}");
+            }
+        }
+
+        var musicFile = Path.Join(this.gameFolder, "music.json");
+        File.Delete(musicFile);
+        Log.Debug($"Cleared music file: {musicFile}");
+    }
+
+    private bool IsNewVersion()
+    {
+        var versionFile = Path.Join(this.gameFolder, "version.txt");
+        if (!File.Exists(versionFile))
+        {
+            return true;
+        }
+
+        try
+        {
+            var version = int.Parse(File.ReadAllText(versionFile));
+            if (version == CURRENT_VERSION)
+            {
+                return false;
+            }
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "Failed to get saved version.");
+            return true;
+        }
+
+        return true;
     }
 
     private string GetReplacementPath(int bgmId) => this.game switch
