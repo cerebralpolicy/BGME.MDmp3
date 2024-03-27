@@ -1,7 +1,7 @@
-﻿using BGME.MDMp3.API.Configuration;
+﻿using BGME.MDmp3.Configuration;
 using Reloaded.Mod.Interfaces;
 
-namespace BGME.MDMp3.API.Template.Configuration
+namespace BGME.MDmp3.Template.Configuration
 {
     /// <summary>
     /// Creates the various different configurations used by the mod.

@@ -162,8 +162,8 @@ param (
     $UseScriptDirectory=$True,
 
     ## => User Config <= ## 
-    $ProjectPath = "BGME.MDMp3.API.csproj",
-    $PackageName = "BGME.MDMp3.API",
+    $ProjectPath = "BGME.MDMp3.csproj",
+    $PackageName = "BGME.MDMp3",
     $PublishOutputDir = "Publish/ToUpload",
 
     ## => User: Delta Config
@@ -180,7 +180,7 @@ param (
 
     $GameBananaItemId = 333681, # From mod page URL.
 
-    $NuGetPackageId = "BGME.MDMp3.API",
+    $NuGetPackageId = "BGME.MDMp3",
     $NuGetFeedUrl = "http://packages.sewer56.moe:5000/v3/index.json",
     $NuGetAllowUnlisted = $False,
 

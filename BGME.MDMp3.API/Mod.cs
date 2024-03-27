@@ -1,9 +1,9 @@
-﻿using BGME.MDMp3.API.Configuration;
-using BGME.MDMp3.API.Template;
+﻿using BGME.MDmp3.Configuration;
+using BGME.MDmp3.Template;
 using Reloaded.Hooks.ReloadedII.Interfaces;
 using Reloaded.Mod.Interfaces;
 
-namespace BGME.MDMp3.API
+namespace BGME.MDmp3
 {
     /// <summary>
     /// Your mod logic goes here.

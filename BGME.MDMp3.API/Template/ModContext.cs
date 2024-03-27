@@ -1,8 +1,8 @@
-﻿using BGME.MDMp3.API.Configuration;
+﻿using BGME.MDmp3.Configuration;
 using Reloaded.Mod.Interfaces;
 using IReloadedHooks = Reloaded.Hooks.ReloadedII.Interfaces.IReloadedHooks;
 
-namespace BGME.MDMp3.API.Template
+namespace BGME.MDmp3.Template
 {
     /// <summary>
     /// Represents information passed in from the mod loader template to the implementing mod.

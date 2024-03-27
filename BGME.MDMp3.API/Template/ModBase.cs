@@ -1,6 +1,6 @@
-﻿using BGME.MDMp3.API.Configuration;
+﻿using BGME.MDmp3.Configuration;
 
-namespace BGME.MDMp3.API.Template
+namespace BGME.MDmp3.Template
 {
     /// <summary>
     /// Base class for implementing mod functionality.

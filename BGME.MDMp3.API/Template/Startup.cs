@@ -3,13 +3,13 @@
  * to make it easier to upgrade to newer versions of the template.
 */
 
-using BGME.MDMp3.API.Configuration;
-using BGME.MDMp3.API.Template.Configuration;
+using BGME.MDmp3.Configuration;
+using BGME.MDmp3.Template.Configuration;
 using Reloaded.Hooks.ReloadedII.Interfaces;
 using Reloaded.Mod.Interfaces;
 using Reloaded.Mod.Interfaces.Internal;
 
-namespace BGME.MDMp3.API.Template
+namespace BGME.MDmp3.Template
 {
     public class Startup : IMod
     {

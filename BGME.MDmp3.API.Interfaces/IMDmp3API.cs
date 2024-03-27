@@ -1,7 +1,9 @@
-﻿namespace BGME.MDmp3.API.Interfaces
+﻿namespace BGME.MDmp3.Interfaces
 {
-    public class IMDmp3API
+    public interface IMDmp3API
     {
-
+        // BORROWING FROM BATTLETHEMES
+        void AddPath(string modID, string path);
+        void RemovePath(string path);
     }
 }

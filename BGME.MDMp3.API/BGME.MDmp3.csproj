@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net7.0-windows</TargetFramework>
+    <TargetFramework>net8.0-windows7.0</TargetFramework>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     <LangVersion>10.0</LangVersion>
@@ -27,8 +27,6 @@
 
   <ItemGroup>
     <None Remove="ModConfig.json" />
-    <None Remove="Publish.ps1" />
-    <None Remove="BuildLinked.ps1" />
     <None Remove="Reloaded.Trimming.targets" />
     <None Remove="Reloaded.Checks.targets" />
   </ItemGroup>
@@ -43,13 +41,16 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="p3rpc.nativetypes.Interfaces" Version="1.2.1" />
     <PackageReference Include="Reloaded.Mod.Interfaces" Version="2.4.0" ExcludeAssets="runtime" />
     <PackageReference Include="Reloaded.SharedLib.Hooks" Version="1.9.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\BGME.MDmp3.API.Config\BGME.MDmp3.API.Config.csproj" />
-    <ProjectReference Include="..\BGME.MDmp3.API.Interfaces\BGME.MDmp3.API.Interfaces.csproj" />
+    <ProjectReference Include="..\BGME.MDmp3.API.Interfaces\BGME.MDmp3.Interfaces.csproj" />
+    <ProjectReference Include="..\submodules\BGME\BGME.Framework.Interfaces\BGME.Framework.Interfaces.csproj" />
+    <ProjectReference Include="..\submodules\PersonaModdingMetadata\PersonaModdingMetadata.Shared\PersonaModdingMetadata.Shared.csproj" />
+    <ProjectReference Include="..\submodules\phos-music-manager\Phos.MusicManager.Library\Phos.MusicManager.Library.csproj" />
   </ItemGroup>
 
 </Project>

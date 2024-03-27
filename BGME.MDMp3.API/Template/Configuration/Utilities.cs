@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics;
 
-namespace BGME.MDMp3.API.Template.Configuration
+namespace BGME.MDmp3.Template.Configuration
 {
     public class Utilities
     {
