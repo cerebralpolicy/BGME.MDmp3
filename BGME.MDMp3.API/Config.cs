@@ -2,7 +2,7 @@
 using Reloaded.Mod.Interfaces.Structs;
 using System.ComponentModel;
 
-namespace BGME.MDmp3.Configuration
+namespace BGME.MDmp3
 {
     public class Config : Configurable<Config>
     {
@@ -29,7 +29,7 @@ namespace BGME.MDmp3.Configuration
         [DisplayName("Log Level")]
         [DefaultValue(LogLevel.Information)]
         public LogLevel LogLevel { get; set; } = LogLevel.Information;
-
+/*
         [DisplayName("Persona 5 Royal")]
         [Category("Base BGM ID")]
         [DefaultValue(12000)]
@@ -44,11 +44,11 @@ namespace BGME.MDmp3.Configuration
         [Category("Base BGM ID")]
         [DefaultValue(4000)]
         public int BaseBgmId_P3P { get; set; } = 4000;
-
+*/
         [DisplayName("Persona 3 Reload")]
-        [Category("Base BGM ID")]
-        [DefaultValue(4000)]
-        public int BaseBgmId_P3R { get; set; } = 4000;
+        [Category("Base MDmp3 BGM ID")]
+        [DefaultValue(4500)]
+        public int BaseBgmId_P3R { get; set; } = 4500;
     }
 
 

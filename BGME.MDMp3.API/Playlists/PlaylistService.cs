@@ -6,6 +6,7 @@ using System.Collections.ObjectModel;
 using System.Text;
 using System.Text.RegularExpressions;
 using Timer = System.Timers.Timer;
+using BGME.MDmp3.Utils;
 
 namespace BGME.MDmp3.Playlists;
 internal class PlaylistService : IMDmp3API
@@ -14,11 +15,11 @@ internal class PlaylistService : IMDmp3API
     private readonly IBgmeApi bgme;
     private readonly SongRegistry songRegistry;
 
-    private readonly ObservableCollection<ThemePath> themePaths = new();
-    private readonly List<string> themes = new();
+    private readonly ObservableCollection<PlaylistPath> playlistPaths = new();
+    private readonly List<string> playlists = new();
     private readonly StringBuilder musicScriptBuilder = new();
-    private Func<string> themeScriptCallback = () => string.Empty;
-    private readonly Timer themesRefreshTimer;
+    private Func<string> playlistScriptCallback = () => string.Empty;
+    private readonly Timer playlistsRefreshTimer;
 
     public PlaylistService(
         IModLoader modLoader,
@@ -29,45 +30,45 @@ internal class PlaylistService : IMDmp3API
         this.bgme = bgme;
         this.songRegistry = songRegistry;
 
-        this.themesRefreshTimer = new(TimeSpan.FromMilliseconds(250))
+        playlistsRefreshTimer = new(TimeSpan.FromMilliseconds(250))
         {
             AutoReset = false,
         };
 
         // Add temp callback to retain mod priority
         // in music scripts.
-        this.bgme.AddMusicScript(this.themeScriptCallback);
+        bgme.AddMusicScript(playlistScriptCallback);
 
-        this.themesRefreshTimer.Elapsed += (sender, args) => this.ApplyThemeScript();
-        this.themePaths.CollectionChanged += (sender, args) =>
+        playlistsRefreshTimer.Elapsed += (sender, args) => ApplyThemeScript();
+        playlistPaths.CollectionChanged += (sender, args) =>
         {
-            this.themesRefreshTimer.Stop();
-            this.themesRefreshTimer.Start();
+            playlistsRefreshTimer.Stop();
+            playlistsRefreshTimer.Start();
         };
 
-        this.modLoader.ModLoading += this.OnModLoading;
+        modLoader.ModLoading += OnModLoading;
     }
 
-    public void AddPath(string modId, string path)
+    public void AddPath(string modId, string path, string type)
     {
-        var themePath = new ThemePath(modId, path);
-        if (!this.themePaths.Contains(themePath))
+        var playlistPath = new PlaylistPath(modId, path, type);
+        if (!playlistPaths.Contains(playlistPath))
         {
-            this.themePaths.Add(new ThemePath(modId, path));
-            Log.Debug($"Added theme path.\nPath: {path}");
+            playlistPaths.Add(new PlaylistPath(modId, path, type));
+            Log.Debug($"Added playlist path.\nPath: {path}");
         }
     }
 
     public void RemovePath(string path)
     {
-        if (this.themePaths.FirstOrDefault(x => x.Path == path) is ThemePath themePath)
+        if (playlistPaths.FirstOrDefault(x => x.Path == path) is PlaylistPath playlistPath)
         {
-            this.themePaths.Remove(themePath);
-            Log.Debug($"Removed theme path.\nPath: {path}");
+            playlistPaths.Remove(playlistPath);
+            Log.Debug($"Removed playlist path.\nPath: {path}");
         }
         else
         {
-            Log.Verbose($"Could not find theme path to remove.\nPath: {path}");
+            Log.Verbose($"Could not find playlist path to remove.\nPath: {path}");
         }
     }
 
@@ -78,86 +79,91 @@ internal class PlaylistService : IMDmp3API
             return;
         }
 
-        var modDir = this.modLoader.GetDirectoryForModId(config.ModId);
-        var battleThemesDir = Path.Join(modDir, "MDmp3");
-        if (Directory.Exists(battleThemesDir))
+
+        var modDir = modLoader.GetDirectoryForModId(config.ModId);
+
+        var _definitionDir = PlaylistCategory.GetCatDir(modDir, "_library_");
+
+        if (Directory.Exists(_definitionDir))
         {
-            this.AddPath(config.ModId, battleThemesDir);
+            AddPath(config.ModId, _definitionDir, "library");
         }
     }
 
     private void ApplyThemeScript()
     {
-        this.musicScriptBuilder.Clear();
-        this.themes.Clear();
+        musicScriptBuilder.Clear();
+        playlists.Clear();
 
-        foreach (var theme in this.themePaths)
+        foreach (var playlist in playlistPaths)
         {
-            if (theme.IsFile)
+            if (playlist.IsFile)
             {
-                this.ProcessFile(theme.ModId, theme.Path);
+                ProcessFile(playlist.ModId, playlist.Path, playlist.Type);
             }
             else
             {
-                this.ProcessFolder(theme.ModId, theme.Path);
+                ProcessFolder(playlist.ModId, playlist.Path, playlist.Type);
             }
         }
 
-        if (this.themes.Count == 0)
+        if (playlists.Count == 0)
         {
             return;
         }
 
-        musicScriptBuilder.AppendLine($"const allThemes = [{string.Join(',', this.themes)}]");
+        musicScriptBuilder.AppendLine($"const allThemes = [{string.Join(',', playlists)}]");
         musicScriptBuilder.AppendLine($"const randomizedThemes = random_music(allThemes)");
         musicScriptBuilder.AppendLine("encounter[\"Normal Battles\"]:");
         musicScriptBuilder.AppendLine("  music = randomizedThemes");
         musicScriptBuilder.AppendLine("end");
 
-        var musicScript = this.musicScriptBuilder.ToString();
+        var musicScript = musicScriptBuilder.ToString();
         string newCallback() => musicScript;
 
         // Replace current callback with new one.
-        this.bgme.AddMusicScript(newCallback, this.themeScriptCallback);
-        this.themeScriptCallback = newCallback;
+        bgme.AddMusicScript(newCallback, playlistScriptCallback);
+        playlistScriptCallback = newCallback;
 
         Log.Debug($"Battle Themes Script:\n{musicScript}");
     }
 
-    private void ProcessFile(string modId, string filePath)
+    private void ProcessFile(string modId, string filePath, string type)
     {
         try
         {
-            var modSongs = this.songRegistry.GetModSongs(modId);
+            var modSongs = songRegistry.GetModSongs(modId);
             var musicScriptText = File.ReadAllText(filePath);
             foreach (var song in modSongs)
             {
                 var pattern = $@"\b({song.Name})\b";
                 musicScriptText = Regex.Replace(musicScriptText, pattern, song.BgmId.ToString());
             }
+            if (type.ToLower() == "combat")
+            {
+                var uniqueThemeId = $"battleplaylist_{playlists.Count}";
+                musicScriptText = musicScriptText.Replace("BATTLE_THEME", uniqueThemeId);
+                playlists.Add(uniqueThemeId); // Allows for blank themes
+            }
+            musicScriptBuilder.AppendLine(musicScriptText);
 
-            var uniqueThemeId = $"theme_{this.themes.Count}";
-            musicScriptText = musicScriptText.Replace("BATTLE_THEME", uniqueThemeId);
-            this.themes.Add(uniqueThemeId);
-            this.musicScriptBuilder.AppendLine(musicScriptText);
-
-            Log.Information($"Added battle theme from {modId}: {Path.GetFileName(filePath)}");
+            Log.Information($"Added {type.ToUpper()} playlist from {modId}: {Path.GetFileName(filePath)}");
         }
         catch (Exception ex)
         {
-            Log.Error(ex, $"Failed to add battle theme from {modId}.\nFile: {filePath}");
+            Log.Error(ex, $"Failed to add {type.ToUpper()} playlist from {modId}.\nFile: {filePath}");
         }
     }
 
-    private void ProcessFolder(string modId, string folderPath)
+    private void ProcessFolder(string modId, string folderPath, string type)
     {
-        foreach (var themeFile in Directory.EnumerateFiles(folderPath, "*.theme.pme", SearchOption.TopDirectoryOnly))
+        foreach (var playlistFile in Directory.EnumerateFiles(folderPath, "*.playlist.pme", SearchOption.TopDirectoryOnly))
         {
-            this.ProcessFile(modId, themeFile);
+            ProcessFile(modId, playlistFile, type);
         }
     }
 
-    private record ThemePath(string ModId, string Path)
+    private record PlaylistPath(string ModId, string Path, string Type)
     {
         public bool IsFile { get; } = File.Exists(Path);
     }

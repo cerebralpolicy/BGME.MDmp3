@@ -39,7 +39,7 @@ namespace BGME.MDmp3.Config
             ApplySettings();
         }
 
-        public void AddSetting(string propertyName, string playlistFileName)
+        public void AddSetting(string propertyName, string playlistFileName, string playlistType)
         {
             var configType = config.GetType();
             var configProp = configType.GetProperty(propertyName, typeof(bool));
@@ -49,14 +49,14 @@ namespace BGME.MDmp3.Config
                 return;
             }
 
-            var playlistFile = Path.Join(modDir, "MDmp3", "options", playlistFileName);
+            var playlistFile = Path.Join(modDir, "MDmp3", "playlist", playlistFileName);
             if (!File.Exists(playlistFile))
             {
                 log.WriteLine($"[ThemeConfig] Theme file not found.\nFile: {playlistFile}", Color.Red);
                 return;
             }
 
-            var option = new PlaylistSetting(propertyName, playlistFile);
+            var option = new PlaylistSetting(propertyName, playlistFile, playlistType);
             settings[option] = () =>
             {
                 var enabled = (bool)(configProp.GetValue(config) ?? false);
@@ -68,12 +68,12 @@ namespace BGME.MDmp3.Config
         {
             foreach (var setting in settings)
             {
-                setting.Key.Deconstruct(out var propertyName, out var playlistFile);
+                setting.Key.Deconstruct(out var propertyName, out var playlistFile, out var playlistType);
                 var enabled = setting.Value();
 
                 if (enabled)
                 {
-                    playlistsApi.AddPath(modId, playlistFile);
+                    playlistsApi.AddPath(modId, playlistFile, playlistType);
                 }
                 else
                 {
@@ -90,6 +90,6 @@ namespace BGME.MDmp3.Config
             ApplySettings();
         }
 
-        private record PlaylistSetting(string PropertyName, string PlaylistFile);
+        private record PlaylistSetting(string PropertyName, string PlaylistFile, string playlistType);
     }
 }

@@ -1,5 +1,4 @@
-﻿using BGME.MDmp3.Configuration;
-using Reloaded.Mod.Interfaces;
+﻿using Reloaded.Mod.Interfaces;
 
 namespace BGME.MDmp3.Template.Configuration
 {
