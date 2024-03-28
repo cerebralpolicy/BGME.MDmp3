@@ -5,7 +5,7 @@
   "ModVersion": "1.0.0",
   "ModDescription": "A custom API",
   "ModDll": "BGME.MDmp3.dll",
-  "ModIcon": "Preview.png",
+  "ModIcon": "MDmp3_API_Square.png",
   "ModR2RManagedDll32": "x86/BGME.MDmp3.dll",
   "ModR2RManagedDll64": "x64/BGME.MDmp3.dll",
   "ModNativeDll32": "",
