@@ -49,7 +49,7 @@ namespace BGME.MDmp3.Config
                 return;
             }
 
-            var playlistFile = Path.Join(modDir, "MDmp3", "playlist", playlistFileName);
+            var playlistFile = Path.Join(modDir, "MDmp3", "playlist", playlistType, playlistFileName);
             if (!File.Exists(playlistFile))
             {
                 log.WriteLine($"[ThemeConfig] Theme file not found.\nFile: {playlistFile}", Color.Red);

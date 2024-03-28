@@ -114,14 +114,14 @@ internal class SongRegistry
             {
                 return;
             }
-
+            var thisCat = SongCategory.GetCatDef(musicDir);            
             var modSongs = Directory.GetFiles(musicDir, "*", SearchOption.AllDirectories)
                 .Where(file => this.supportedExts
                 .Contains(Path.GetExtension(file), StringComparer.OrdinalIgnoreCase))
                 .Select(file =>
                 {
                     var bgmId = this.GetNextBgmId();
-                    var buildFile = Path.Join(modDir, this.GetReplacementPath(musicDir, bgmId));
+                    var buildFile = Path.Join(modDir, this.GetReplacementPath(thisCat, bgmId));
                     var song = new ModSong(modId, Path.GetFileNameWithoutExtension(file), bgmId, file, buildFile);
                     this.currentMusic.Add(song);
                     return song;

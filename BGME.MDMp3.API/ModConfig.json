@@ -1,10 +1,10 @@
 {
-  "ModId": "BGME.MDMp3",
+  "ModId": "BGME.MDmp3",
   "ModName": "MDmp3 BGME API",
   "ModAuthor": "CerebralPolicy",
   "ModVersion": "1.0.0",
   "ModDescription": "A custom API",
-  "ModDll": "BGME.MD,p3.dll",
+  "ModDll": "BGME.MDmp3.dll",
   "ModIcon": "Preview.png",
   "ModR2RManagedDll32": "x86/BGME.MDmp3.dll",
   "ModR2RManagedDll64": "x64/BGME.MDmp3.dll",

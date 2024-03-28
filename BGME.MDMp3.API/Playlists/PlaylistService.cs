@@ -139,7 +139,7 @@ internal class PlaylistService : IMDmp3API
                 var pattern = $@"\b({song.Name})\b";
                 musicScriptText = Regex.Replace(musicScriptText, pattern, song.BgmId.ToString());
             }
-            if (type.ToLower() == "combat")
+            if (type == "combat")
             {
                 var uniqueThemeId = $"battleplaylist_{playlists.Count}";
                 musicScriptText = musicScriptText.Replace("BATTLE_THEME", uniqueThemeId);
