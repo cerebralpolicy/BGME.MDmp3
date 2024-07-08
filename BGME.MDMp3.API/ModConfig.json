@@ -14,8 +14,8 @@
   "ReleaseMetadataFileName": "BGME.MDMp3.API.ReleaseMetadata.json",
   "PluginData": {},
   "IsUniversalMod": false,
-  "ModDependencies": [ "reloaded.sharedlib.hooks" ],
+  "ModDependencies": [ "reloaded.sharedlib.hooks", "BGME.Framework.API"],
   "OptionalDependencies": [],
-  "SupportedAppId": [],
+  "SupportedAppId": ["p3r.exe"],
   "ProjectUrl": ""
 }
