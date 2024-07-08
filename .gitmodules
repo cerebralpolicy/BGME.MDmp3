@@ -7,3 +7,6 @@
 [submodule "submodules/phos-music-manager"]
 	path = submodules/phos-music-manager
 	url = https://github.com/T-PoseRatkechi/phos-music-manager.git
+[submodule "Submodules/P3R.CalendarUtils"]
+	path = Submodules/P3R.CalendarUtils
+	url = https://github.com/cerebralpolicy/P3R.CalendarUtils.git

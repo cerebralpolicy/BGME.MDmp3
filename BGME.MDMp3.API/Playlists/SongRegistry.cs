@@ -3,6 +3,8 @@ using p3rpc.nativetypes.Interfaces;
 using PersonaModdingMetadata.Shared.Games;
 using Phos.MusicManager.Library.Audio.Encoders;
 using Phos.MusicManager.Library.Audio.Encoders.VgAudio;
+using System.Collections.Generic;
+using System.Globalization;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 
