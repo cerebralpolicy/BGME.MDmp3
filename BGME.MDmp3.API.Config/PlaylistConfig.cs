@@ -39,7 +39,7 @@ namespace BGME.MDmp3.Config
             ApplySettings();
         }
 
-        public void AddSetting(string propertyName, string playlistFileName, string playlistType)
+        public void AddSetting(string propertyName, string playlistFileName)
         {
             var configType = config.GetType();
             var configProp = configType.GetProperty(propertyName, typeof(bool));
@@ -49,14 +49,14 @@ namespace BGME.MDmp3.Config
                 return;
             }
 
-            var playlistFile = Path.Join(modDir, "MDmp3", "playlist", playlistType, playlistFileName);
+            var playlistFile = Path.Join(modDir, "MDmp3", "options", playlistFileName);
             if (!File.Exists(playlistFile))
             {
                 log.WriteLine($"[ThemeConfig] Theme file not found.\nFile: {playlistFile}", Color.Red);
                 return;
             }
 
-            var option = new PlaylistSetting(propertyName, playlistFile, playlistType);
+            var option = new PlaylistSetting(propertyName, playlistFile);
             settings[option] = () =>
             {
                 var enabled = (bool)(configProp.GetValue(config) ?? false);
@@ -68,12 +68,12 @@ namespace BGME.MDmp3.Config
         {
             foreach (var setting in settings)
             {
-                setting.Key.Deconstruct(out var propertyName, out var playlistFile, out var playlistType);
+                setting.Key.Deconstruct(out var propertyName, out var playlistFile);
                 var enabled = setting.Value();
 
                 if (enabled)
                 {
-                    playlistsApi.AddPath(modId, playlistFile, playlistType);
+                    playlistsApi.AddPath(modId, playlistFile);
                 }
                 else
                 {
@@ -90,6 +90,6 @@ namespace BGME.MDmp3.Config
             ApplySettings();
         }
 
-        private record PlaylistSetting(string PropertyName, string PlaylistFile, string playlistType);
+        private record PlaylistSetting(string PropertyName, string PlaylistFile);
     }
 }

@@ -1,4 +1,6 @@
-﻿namespace BGME.MDmp3.Template
+﻿using BGME.MDmp3.Configuration;
+
+namespace BGME.MDmp3.Template
 {
     /// <summary>
     /// Base class for implementing mod functionality.

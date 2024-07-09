@@ -3,6 +3,7 @@
  * to make it easier to upgrade to newer versions of the template.
 */
 
+using BGME.MDmp3.Configuration;
 using BGME.MDmp3.Template.Configuration;
 using Reloaded.Hooks.ReloadedII.Interfaces;
 using Reloaded.Mod.Interfaces;

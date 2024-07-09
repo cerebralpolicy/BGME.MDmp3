@@ -1,8 +1,11 @@
-﻿using BGME.MDmp3.Utils;
+﻿using BGME.MDmp3.Types;
+using BGME.MDmp3.Utils;
 using p3rpc.nativetypes.Interfaces;
 using PersonaModdingMetadata.Shared.Games;
 using Phos.MusicManager.Library.Audio.Encoders;
 using Phos.MusicManager.Library.Audio.Encoders.VgAudio;
+using System.Collections.Generic;
+using System.Globalization;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 
@@ -14,7 +17,7 @@ internal class SongRegistry
     private const int CURRENT_VERSION = 1;
 
     private readonly Game game;
-    private readonly Config config;
+    private readonly Configuration.Config config;
     private readonly HashSet<ModSong> previousMusic;
     private readonly HashSet<ModSong> currentMusic = new();
     private readonly Dictionary<Game, IEncoder> encoders = new();
@@ -25,7 +28,7 @@ internal class SongRegistry
 
     public SongRegistry(
     Game game,
-    Config config,
+    Configuration.Config config,
     string modDir,
     string[] enabledMods)
     {
@@ -101,12 +104,11 @@ internal class SongRegistry
 
     private void RegisterModMusic(string modId, string modDir)
     {
+        var battleDir = SongCategory.GetCatDir(modDir, "battle");
         var bossDir = SongCategory.GetCatDir(modDir, "boss");
-        var charDir = SongCategory.GetCatDir(modDir, "character");
-        var commonDir = SongCategory.GetCatDir(modDir, "common");
         var menuDir = SongCategory.GetCatDir(modDir, "menu");
 
-        var musicDirs = new string[4] {bossDir, charDir, commonDir, menuDir};
+        var musicDirs = new string[3] {battleDir, bossDir, menuDir};
 
 
         foreach (var musicDir in musicDirs) {
@@ -114,15 +116,16 @@ internal class SongRegistry
             {
                 return;
             }
-            var thisCat = SongCategory.GetCatDef(musicDir);            
+
             var modSongs = Directory.GetFiles(musicDir, "*", SearchOption.AllDirectories)
                 .Where(file => this.supportedExts
                 .Contains(Path.GetExtension(file), StringComparer.OrdinalIgnoreCase))
                 .Select(file =>
                 {
                     var bgmId = this.GetNextBgmId();
-                    var buildFile = Path.Join(modDir, this.GetReplacementPath(thisCat, bgmId));
-                    var song = new ModSong(modId, Path.GetFileNameWithoutExtension(file), bgmId, file, buildFile);
+                    var buildFile = Path.Join(modDir, this.GetReplacementPath(musicDir, bgmId));
+                    var metadata = new SongMetadata(file, modDir);
+                    var song = new ModSong(modId, Path.GetFileNameWithoutExtension(file), bgmId, file, buildFile, metadata);
                     this.currentMusic.Add(song);
                     return song;
                 })
@@ -153,8 +156,10 @@ internal class SongRegistry
         var encoder = this.encoders[this.game];
         await encoder.Encode(song.FilePath, outputFile.FullName);
 
+        var data = song.Metadata;
+
         Log.Debug($"Built song: {song.BuildFilePath}");
-        Log.Information($"Registered song: {song.Name} || Mod: {song.ModId} || BGM ID: {song.BgmId}");
+        Log.Information($"Registered song: {data.Title} by {data.Artist} || Mod: {song.ModId} || BGM ID: {song.BgmId}");
 
 
     }
@@ -233,11 +238,9 @@ internal class SongRegistry
 
     private string GetReplacementPath(string songCat, int bgmId) => this.game switch
     {
- /*
         Game.P3P_PC => Path.Join("P5REssentials/CPK/Battle Themes/data/sound/bgm", songCat, $"{bgmId}.adx"),
         Game.P4G_PC => Path.Join("FEmulator/AWB/snd00_bgm.awb", songCat, $"{bgmId}.hca"),
         Game.P5R_PC => Path.Join("FEmulator/AWB/BGM_42.AWB", songCat, $"{bgmId - 10000}.adx"),
-*/   
         Game.P3R_PC => Path.Join("BGME/P3R", songCat, $"{bgmId}.hca"),
         _ => throw new Exception("Unknown game."),
     };
@@ -246,13 +249,11 @@ internal class SongRegistry
 
     private int GetBaseBgmId() => this.game switch
     {
- /*
         Game.P3P_PC => this.config.BaseBgmId_P3P,
         Game.P4G_PC => this.config.BaseBgmId_P4G,
         Game.P5R_PC => this.config.BaseBgmId_P5R,
- */
         Game.P3R_PC => this.config.BaseBgmId_P3R,
         _ => throw new Exception("Unknown game."),
     };
 }
-internal record ModSong(string ModId, string Name, int BgmId, string FilePath, string BuildFilePath);
+internal record ModSong(string ModId, string Name, int BgmId, string FilePath, string BuildFilePath, SongMetadata Metadata);

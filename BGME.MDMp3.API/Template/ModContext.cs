@@ -1,4 +1,5 @@
-﻿using Reloaded.Mod.Interfaces;
+﻿using BGME.MDmp3.Configuration;
+using Reloaded.Mod.Interfaces;
 using IReloadedHooks = Reloaded.Hooks.ReloadedII.Interfaces.IReloadedHooks;
 
 namespace BGME.MDmp3.Template
