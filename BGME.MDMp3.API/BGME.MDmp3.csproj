@@ -4,7 +4,7 @@
     <TargetFramework>net8.0-windows7.0</TargetFramework>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
-    <LangVersion>11.0</LangVersion>
+    <LangVersion>10.0</LangVersion>
     <Nullable>enable</Nullable>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
     <OutputPath>$(RELOADEDIIMODS)/BGME.MDMp3.API</OutputPath>
@@ -36,12 +36,15 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <None Update="MDmp3_API_Square.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Preview.png">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="p3rpc.nativetypes.Interfaces" Version="1.2.1" />
+    <PackageReference Include="p3rpc.nativetypes.Interfaces" Version="1.2.2" />
     <PackageReference Include="Reloaded.Mod.Interfaces" Version="2.4.0" ExcludeAssets="runtime" />
     <PackageReference Include="Reloaded.SharedLib.Hooks" Version="1.9.0" />
   </ItemGroup>
@@ -49,7 +52,6 @@
   <ItemGroup>
     <ProjectReference Include="..\BGME.MDmp3.API.Interfaces\BGME.MDmp3.Interfaces.csproj" />
     <ProjectReference Include="..\submodules\BGME\BGME.Framework.Interfaces\BGME.Framework.Interfaces.csproj" />
-    <ProjectReference Include="..\submodules\P3R.CalendarUtils\P3R.CalendarUtils.API\P3R.CalendarAPI.csproj" />
     <ProjectReference Include="..\submodules\PersonaModdingMetadata\PersonaModdingMetadata.Shared\PersonaModdingMetadata.Shared.csproj" />
     <ProjectReference Include="..\submodules\phos-music-manager\Phos.MusicManager.Library\Phos.MusicManager.Library.csproj" />
   </ItemGroup>

@@ -1,21 +1,24 @@
 {
-  "ModId": "BGME.MDMp3",
-  "ModName": "MDMP3 BGME API",
+  "ModId": "BGME.MDmp3",
+  "ModName": "MDmp3 BGME API",
   "ModAuthor": "CerebralPolicy",
-  "ModVersion": "1.1.0",
+  "ModVersion": "1.0.0",
   "ModDescription": "A custom API",
-  "ModDll": "BGME.MDMp3.API.dll",
+  "ModDll": "BGME.MDmp3.dll",
   "ModIcon": "MDmp3_API_Square.png",
-  "ModR2RManagedDll32": "x86/BGME.MDMp3.API.dll",
-  "ModR2RManagedDll64": "x64/BGME.MDMp3.API.dll",
+  "ModR2RManagedDll32": "x86/BGME.MDmp3.dll",
+  "ModR2RManagedDll64": "x64/BGME.MDmp3.dll",
   "ModNativeDll32": "",
   "ModNativeDll64": "",
   "IsLibrary": false,
-  "ReleaseMetadataFileName": "BGME.MDMp3.API.ReleaseMetadata.json",
+  "ReleaseMetadataFileName": "BGME.MDmp3.ReleaseMetadata.json",
   "PluginData": {},
   "IsUniversalMod": false,
-  "ModDependencies": [ "reloaded.sharedlib.hooks", "BGME.Framework.API"],
+  "ModDependencies": [
+    "BGME.Framework.API",
+    "reloaded.sharedlib.hooks"
+  ],
   "OptionalDependencies": [],
-  "SupportedAppId": ["p3r.exe"],
+  "SupportedAppId": [ "p3r.exe" ],
   "ProjectUrl": ""
 }

@@ -3,7 +3,7 @@
     public interface IMDmp3API
     {
         // BORROWING FROM BATTLETHEMES
-        void AddPath(string modID, string path);
+        void AddPath(string modID, string path, string type);
         void RemovePath(string path);
     }
 }
