@@ -75,18 +75,11 @@ namespace BGME.MDmp3
 
             _modLoader.GetController<IBgmeApi>().TryGetTarget(out var bgme);
 
-            try
-            {
-                _game = GetGame();
-                var baseDir = _modLoader.GetDirectoryForModId(_modConfig.ModId);
-                var musicRegistry = new SongRegistry(_game, _configuration, baseDir, _modLoader.GetAppConfig().EnabledMods);
-                _playlistService = new(_modLoader, bgme!, musicRegistry);
-                _modLoader.AddOrReplaceController<IMDmp3API>(_owner, _playlistService);
-            }
-            catch (Exception ex)
-            {
-                Log.Error(ex, "Failed to start battle themes service.");
-            }
+            _game = GetGame();
+            var baseDir = _modLoader.GetDirectoryForModId(_modConfig.ModId);
+            var musicRegistry = new SongRegistry(_game, _configuration, baseDir, _modLoader.GetAppConfig().EnabledMods);
+            _playlistService = new(_modLoader, bgme!, musicRegistry);
+            _modLoader.AddOrReplaceController<IMDmp3API>(_owner, _playlistService);
         }
 
         private Game GetGame()

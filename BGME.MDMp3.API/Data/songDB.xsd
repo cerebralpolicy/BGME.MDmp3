@@ -1,0 +1,21 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="MDmp3Metadata">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="SongMetadata">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="Filename" type="xs:string" />
+              <xs:element name="Title" type="xs:string" />
+              <xs:element name="Artist" type="xs:string" />
+              <xs:element name="Album" type="xs:string" />
+              <xs:element name="Genres" type="xs:string" />
+              <xs:element name="Released" type="xs:date" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

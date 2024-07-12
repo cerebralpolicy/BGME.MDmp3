@@ -1,10 +1,12 @@
-﻿using BGME.MDmp3.Utils;
+﻿using BGME.MDmp3.Types;
+using BGME.MDmp3.Utils;
 using p3rpc.nativetypes.Interfaces;
 using PersonaModdingMetadata.Shared.Games;
 using Phos.MusicManager.Library.Audio.Encoders;
 using Phos.MusicManager.Library.Audio.Encoders.VgAudio;
 using System.Text.Json;
 using System.Text.RegularExpressions;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace BGME.MDmp3.Playlists;
 
@@ -120,9 +122,11 @@ internal class SongRegistry
                 .Contains(Path.GetExtension(file), StringComparer.OrdinalIgnoreCase))
                 .Select(file =>
                 {
+                    var name = Path.GetFileNameWithoutExtension(file);
                     var bgmId = this.GetNextBgmId();
+                    var metaData = new SongMetadata(name, modDir);
                     var buildFile = Path.Join(modDir, this.GetReplacementPath(thisCat, bgmId));
-                    var song = new ModSong(modId, Path.GetFileNameWithoutExtension(file), bgmId, file, buildFile);
+                    var song = new ModSong(modId, name, bgmId, file, buildFile, metaData);
                     this.currentMusic.Add(song);
                     return song;
                 })
@@ -152,11 +156,9 @@ internal class SongRegistry
 
         var encoder = this.encoders[this.game];
         await encoder.Encode(song.FilePath, outputFile.FullName);
-
         Log.Debug($"Built song: {song.BuildFilePath}");
         Log.Information($"Registered song: {song.Name} || Mod: {song.ModId} || BGM ID: {song.BgmId}");
-
-
+        Log.Information($"{song.Metadata.Title} by {song.Metadata.Artist}");
     }
 
     private void SaveCurrentMusic()
@@ -255,4 +257,3 @@ internal class SongRegistry
         _ => throw new Exception("Unknown game."),
     };
 }
-internal record ModSong(string ModId, string Name, int BgmId, string FilePath, string BuildFilePath);
